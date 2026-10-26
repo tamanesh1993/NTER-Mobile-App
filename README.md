@@ -35,6 +35,7 @@ npm run dev:sample   # offline, with the bundled read-only snapshot — no sign-
 npm run dev          # live: nter.pro's backend (sign in with your nter.pro account)
 npm test             # 29 unit tests
 npm run lint
+npm run check:backend   # checks the live nter.pro backend the app uses (see docs/testing.md)
 ```
 
 `npm run dev` proxies `/api` to www.nter.pro, so the browser preview reads the live public feeds.
@@ -96,6 +97,8 @@ src/
 docs/
   backend-contract.md   every call the app makes, and its shape
   owner-actions.md      settings and accounts only the owner can change
+  testing.md            how to test the app, the API and the database
+  backend-checks.sql    read-only SQL health checks for the Supabase SQL editor
 ```
 
 ## Before releasing

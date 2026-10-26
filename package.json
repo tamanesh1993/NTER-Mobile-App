@@ -19,7 +19,8 @@
     "lint": "eslint --max-warnings 0 src tests",
     "cap:sync": "npm run build && cap sync",
     "android": "npm run build && cap sync android && cap open android",
-    "ios": "npm run build && cap sync ios && cap open ios"
+    "ios": "npm run build && cap sync ios && cap open ios",
+    "check:backend": "node scripts/check-backend.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",
