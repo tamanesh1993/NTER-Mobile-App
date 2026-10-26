@@ -95,12 +95,21 @@ export function AppProvider({ children }) {
         const guest = await getJSON('nter.guest', false);
         if (guest) setStage('app');
       }
-      api.getModels().then((m) => alive && setModels(m)).catch(() => {});
       setBooting(false);
     })();
     const off = api.onAuthChange((s) => setSession(s));
     return () => { alive = false; off?.(); };
   }, [loadSignedIn]);
+
+  // The model list is readable only when signed in (ai_models is closed to anonymous visitors),
+  // so it loads, and reloads, whenever the signed-in member changes.
+  const memberId = session?.user?.id || null;
+  useEffect(() => {
+    let alive = true;
+    if (!memberId && !isSample) { setModels([]); return undefined; }
+    api.getModels().then((m) => alive && setModels(m)).catch(() => alive && setModels([]));
+    return () => { alive = false; };
+  }, [memberId]);
 
   // theme on <html>, the status bar and the browser chrome
   useEffect(() => {
