@@ -4,6 +4,15 @@ The app works against the live nter.pro backend as it is today. These steps unlo
 need a setting changed or an account that only the owner can hold. None of them was done for you:
 the database and the website were only read while the app was built.
 
+## Owner decision, 26 Oct 2026: nter.pro and NTER stay unchanged
+
+The nter.pro website code (`ddllabs/niyantran`) and the NTER Supabase project are not to be
+changed for this app. The app works within that: email and password sign-in, desks, AI answers,
+briefs, credits, conversations and the watchlist all use what NTER already offers. Items 2–4 below
+change NTER settings, so they are **not planned**; they are listed only so the trade-off is known
+(without them: no Google sign-in in the phone apps, and answers arrive whole rather than word by
+word). The security advisory at the end is information only.
+
 ## Before the first release
 
 1. **Let Claude push to GitHub (optional).** Install the Claude GitHub app on `tamanesh1993/NTER-Mobile-App` (https://github.com/apps/claude/installations/select_target), or push the code yourself from the zip.
