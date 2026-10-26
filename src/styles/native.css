@@ -77,3 +77,9 @@
 .samplestrip{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;font-weight:600;color:var(--amber);background:var(--amber-soft);padding:6px 16px;text-align:center}
 .lp-eyebrow .samplebadge{margin-left:8px}
 .mbrief .row button{justify-content:center;text-align:center}
+
+/* Desktop browser: show the app in a phone-sized frame instead of stretching it across the screen. */
+@media (min-width: 640px) and (min-height: 600px) {
+  html.web, html.web body { background: var(--pill); }
+  html.web .root { inset: 14px auto 14px 50%; width: 402px; transform: translateX(-50%); border-radius: 30px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 24px 60px rgba(19,19,19,.18); }
+}
