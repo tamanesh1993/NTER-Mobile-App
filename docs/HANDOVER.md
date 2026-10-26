@@ -14,7 +14,7 @@ no migration to run (`../supabase/README.md`).
 | Screens | Welcome (site globe), sign in / sign up / reset, perspective, Home (nter.news feed, desks, markets, watchlist), Library (8 desks → sectors → 120 modules → records), desk card (nter.pro's record panel with the NTER animation; PDF, pin, watch), search, Ask AI (Library · AI chat · Studio, attachments incl. PDFs, model/effort by plan, citations, follow-ups, history, stop), Quick Exit (94 documents) → Make → Studio (gap markers, PDF/Word), Me (plan, credits, perspective, writing profile, watchlist, library, theme, about) |
 | Native projects | `android/` (app id `pro.nter.app`, target API 36), `ios/` (Swift Package Manager, no CocoaPods) |
 | Builds | `npm run build` (phones), `build:web` (installable web app), `build:sample` (offline demo) |
-| CI | `.github/workflows/ci.yml`: lint, unit tests, three builds, two browser smoke tests, Android debug APK |
+| CI | `.github/workflows/ci.yml`: lint, unit tests, three builds, two browser smoke tests, the every-button sweep, Android debug APK |
 
 ## Verified on 26 Oct 2026
 
@@ -36,10 +36,18 @@ Database (read-only SQL, `backend-checks.sql`): 257 live feeds, none failing or 
 enabled; 9 AI answers that day with no failures; average model latency 1.6 s. Latest NTER
 migration is still 20261023192554 — nothing was changed by this work.
 
-Automated: 30 unit tests (including nter.pro's own citation-marker fixture), the sample smoke test
-(15 steps, no network) and the live-build smoke test against a stand-in backend (8 steps, every
-request checked against research-chat's validation rules) all pass. Contract snapshot of every
-table, grant, policy and RPC the app uses: `../supabase/schema/app-surface.sql`.
+Automated, on the final build (and in CI on every push):
+
+| Test | Result |
+| --- | --- |
+| `npm run lint` | clean |
+| `npm test` — 181 unit tests | pass. Includes a desk card for every record in the bundled snapshot (~100 modules) checked against the website's own card contract, the website brief flow (read → write once → poll), the request row matching the website byte for byte, nter.pro's citation fixture, and a hash check of every file copied from the website |
+| `npm run test:smoke` — whole app on the snapshot, no network | 15 / 15 steps pass, including the NTER animation → desk card |
+| `npm run test:smoke:live` — live build against a stand-in backend | 8 / 8 steps pass; 23 backend calls checked against NTER's contract; desk-brief called read then write |
+| `npm run test:buttons` — every button on every reachable screen and sheet | 474 buttons on 53 screens and sheets pressed; **0 page errors, 0 console errors or warnings, 0 failed requests, 0 calls leaving the phone**. Log: `test-results/buttons/report.txt` (CI artifact `button-sweep-log`) |
+| Builds | phones, installable web app and offline demo build; Android debug APK in CI |
+
+Contract snapshot of every table, grant, policy and RPC the app uses: `../supabase/schema/app-surface.sql`.
 
 **Fixed on 26 Oct:** the AI model list loaded before sign-in; `ai_models` is readable only by
 signed-in members, so it came back empty and Ask AI looked disconnected. It now loads on sign-in
