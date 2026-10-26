@@ -11,8 +11,8 @@ credits, conversations and watchlist, the same eight desks and 120 modules, and 
 - **Welcome** — the nter.pro home page on a phone, with the site's own WebGL globe and the live "record at a glance" figures. Browse without an account, sign in, or create one.
 - **Home** — the nter.news feed first (lead story, sections, hot topics), then the desks carousel, markets, your watchlist and the morning briefing.
 - **Library** — the eight desks → sectors → modules → records, from the same `/api/feature-feed` the website reads. Large modules page and search on the server.
-- **Record** — every field, the AI brief nter.pro keeps for it (written on request), source link, PDF download, pin, watch, Ask AI and Quick Exit.
-- **Ask AI** — three sections: *Desk*, *AI chat* (default) and *Studio*. Attach records, PDFs or text files; choose model, effort, focus and web search; answers stream in with tappable citations, follow-up questions, copy, PDF, Word, share and re-run. Conversations are the same as on the website.
+- **Desk card** — tap any bill, notice, order or row: the card slides in from the right as nter.pro's side panel does, the NTER animation plays while the AI brief is read (or written, the first time anyone opens the record), then nter.pro's own card shows — title, badge, 01 At a glance with its map, timeline or board, 02 About with the Niyantran analysis, Quick exit, related records, source and as-of. Below it: Quick Exit, PDF, pin and watch.
+- **Ask AI** — three sections: *Library*, *AI chat* (default) and *Studio*. Attach records, PDFs or text files; choose model, effort, focus and web search; answers stream in with tappable citations, follow-up questions, copy, PDF, Word, share and re-run. Conversations are the same as on the website.
 - **Quick Exit** — the five-blade shutter with the 94 working documents for your perspective. Pick one, answer one question, and the AI writes it from the record with every gap marked.
 - **Studio** — edit what Quick Exit or an answer made; fill gaps or mark them verified; export to PDF or Word.
 - **Me** — profile, plan and credits, perspective, writing profile, watchlist, your library, light/dark theme, about and image credits.
@@ -47,9 +47,10 @@ live public feeds. Port 5173 is the origin nter.pro's AI functions already accep
 
 ```bash
 npm run lint              # ESLint, zero warnings
-npm test                  # 30 unit tests (Vitest), next to the code as *.test.js
+npm test                  # unit tests (Vitest), next to the code as *.test.js — incl. a desk card for every sample record
 npm run test:smoke        # the whole app in a headless browser on sample data — 15 steps, no network
 npm run test:smoke:live   # the live build against a stand-in backend — every request checked against NTER's contract
+npm run test:buttons      # every button on every reachable screen and sheet, with a full log in test-results/buttons/
 npm run check:backend     # read-only checks of the real nter.pro backend (docs/testing.md)
 ```
 
@@ -103,6 +104,13 @@ Copy `.env.example` to `.env.local` to override:
 
 No secret keys are used or needed. Never put a service-role key in this app.
 
+## The desk card comes from the website
+
+`src/shell/record/`, `public/animation/` and the files listed in `src/shell/website-sync.json` are
+copies of nter.pro's code (ddllabs/niyantran, commit in that file), so the phone shows the card the
+website shows. Don't edit them here; change the website and run
+`npm run sync:website -- <path to a website checkout>`. A unit test fails if a copy drifts.
+
 ## Database
 
 The app has no database of its own and adds nothing to NTER, so there is nothing to migrate.
@@ -119,11 +127,15 @@ src/
   screens/    Welcome, Auth, Persona, Home, Story, Library, Sector, Module, Record, Search, Ask, Studio, Make, Me
   sheets/     every bottom sheet, and the Quick Exit shutter
   ui/         icons, markdown with citations, shared pieces
-  lib/        supabaseClient.js, HTTP, event stream, citation markers (same rules as the website), storage, exports, files
+  deskcard/   the desk card on the phone: DeskCard.jsx (the website's markup), useDeskBrief.js (its brief flow), genericModel.js
+  shell/record/  copied from nter.pro: the record adapters for 34 modules, visuals, card contract, recordPanel.css
+  lib/        supabaseClient.js, HTTP, event stream, citation markers (same rules as the website), storage, exports, files,
+              and the website helpers the adapters import (impactRecord, format, …)
   data/       desks, personas, plans, Quick Exit catalogue, stories
   sample/     the read-only snapshot
   **/*.test.js  unit tests sit next to the code they test, as on the website
-scripts/      smoke tests, backend checks, sample export, local seed
+scripts/      smoke tests, button sweep, backend checks, sample export, local seed, sync-website-record
+public/animation/  the NTER record animation (the website's nter-record-loader, unchanged)
 supabase/     schema snapshot, local seed, how to run a separate copy (no migrations: nothing to add)
 android/ ios/ the native projects (Capacitor)
 docs/

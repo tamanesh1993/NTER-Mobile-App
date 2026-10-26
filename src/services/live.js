@@ -188,21 +188,31 @@ async function postFunction(name, body, { signal } = {}) {
   return res;
 }
 
-function slimRow(row) {
-  const out = {};
-  let size = 2;
+// The row as nter.pro sends it for a record brief (website src/lib/deskBrief.js): whole when it fits
+// the function's bound, so the server hashes it exactly as for the website and both read the same
+// stored brief; else the slimmed entry (40 fields, 220 characters each).
+const RECORD_ROW_BYTES = 30_000;
+const cell = (v) => (v == null ? '' : String(v).replace(/\s+/g, ' ').trim().slice(0, 220));
+function slimEntry(row) {
+  const o = {};
+  let n = 0;
   for (const [k, v] of Object.entries(row || {})) {
-    if (v == null || v === '' || typeof v === 'object') continue;
-    const s = String(v).slice(0, 2000);
-    size += k.length + s.length + 6;
-    if (size > 28000) break;
-    out[k] = s;
+    if (/^__|backup_/i.test(k)) continue;
+    o[k] = cell(v);
+    n += 1;
+    if (n >= 40) break;
   }
-  return out;
+  return o;
+}
+export function recordPayloadRow(row) {
+  try {
+    if (new TextEncoder().encode(JSON.stringify(row)).length <= RECORD_ROW_BYTES) return row;
+  } catch { /* not serialisable as is */ }
+  return slimEntry(row);
 }
 
 export async function recordBrief({ module, row, generate = false, signal }) {
-  const body = { scope: 'record', tier: module.tier, feature: module.feature, row: slimRow(row), ...(generate ? {} : { mode: 'read' }) };
+  const body = { scope: 'record', tier: module.tier, feature: module.feature, row: recordPayloadRow(row), ...(generate ? {} : { mode: 'read' }) };
   const res = await postFunction('desk-brief', body, { signal });
   const data = await res.json().catch(() => null);
   if (!res.ok || !data) throw new HttpError(res.status, data?.error || 'The brief is unavailable.', data);

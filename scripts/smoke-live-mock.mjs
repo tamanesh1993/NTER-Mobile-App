@@ -23,6 +23,7 @@ if (SHOTS) mkdirSync(SHOTS, { recursive: true });
 
 const problems = [];
 const seen = [];
+const briefModes = [];
 const user = { id: '11111111-2222-3333-4444-555555555555', email: 'tester@example.com', aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {}, created_at: '2026-10-01T00:00:00Z' };
 const session = { access_token: TOKEN, token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, refresh_token: 'mock-refresh', user };
 const models = sample('ai-models.json');
@@ -78,6 +79,7 @@ async function installMocks(page) {
       if (!authed(req)) return json(route, { error: 'unauthorised' }, 401);
       const b = req.postDataJSON();
       if (b.scope !== 'record' || !b.tier || !b.feature || !b.row) problems.push('desk-brief body');
+      briefModes.push(b.mode || 'write');
       if (b.mode === 'read') return json(route, { ok: true, state: 'missing' });
       return json(route, { ok: true, state: 'ready', format: 2, brief: 'Mock brief for the record on screen.', why: 'It matters for the test.', watch: 'Nothing.', tags: ['Test'], model: 'mock', writtenAt: new Date().toISOString() });
     }
@@ -128,6 +130,12 @@ async function installMocks(page) {
     }
     return json(route, { ok: false }, 404);
   });
+  // The desk cards' analysis packs (website /data/…), proxied like /api.
+  await page.route((u) => new URL(u).pathname.startsWith('/data/'), async (route) => {
+    const url = new URL(route.request().url());
+    seen.push(`GET ${url.pathname}`);
+    return json(route, url.pathname.endsWith('ontology.json') ? { nodes: [], edges: [] } : {});
+  });
   await page.route('https://nter.news/**', (route) => route.fulfill({ status: 200, contentType: 'image/png', body: Buffer.from('89504e470d0a1a0a0000000d4948445200000001000000010806000000', 'hex') }));
 }
 
@@ -170,14 +178,17 @@ try {
     await vis('.table-hd').getByText('9,819 RECORDS').waitFor({ timeout: 10000 });
     await shot('03-module');
   });
-  await step('record opens and the AI brief is written', async () => {
+  await step('record opens as the desk card: NTER animation, then the brief is read and written', async () => {
     await vis('.rrow button').first().click();
-    await vis('.brief .pbtn').click();
-    await vis('.brief').getByText('Mock brief for the record on screen.').waitFor({ timeout: 10000 });
+    await vis('nter-record-loader').waitFor({ timeout: 5000 });
+    await vis('.rp .rp-title').waitFor({ timeout: 10000 });
+    await vis('.rp-brief').getByText('Mock brief for the record on screen.').waitFor({ timeout: 10000 });
+    if (briefModes.join(',') !== 'read,write') throw new Error(`desk-brief calls were ${briefModes.join(',')}, expected read,write`);
+    await vis('.rp-tiles .rp-tile').first().waitFor();
     await shot('04-record');
   });
   await step('Ask AI about the record returns a cited answer', async () => {
-    await vis('.pbtn').filter({ hasText: 'Ask AI about this record' }).click();
+    await vis('.rp-ask').click();
     await vis('.composer textarea').fill('What stage is this bill at?');
     await vis('.composer .send').click();
     await vis('.ans .body-md').getByText('The record is on the register').waitFor({ timeout: 10000 });
@@ -197,7 +208,7 @@ try {
 
 for (const e of errors) problems.push(`page error: ${e}`);
 const called = (p) => seen.some((s) => s.includes(p));
-for (const p of ['/auth/v1/token', '/rest/v1/rpc/get_my_profile', '/rest/v1/ai_models', '/rest/v1/rpc/my_credits_cycle_v3', '/functions/v1/desk-brief', '/functions/v1/research-chat', '/api/home/latest', '/api/feature-feed']) {
+for (const p of ['/auth/v1/token', '/rest/v1/rpc/get_my_profile', '/rest/v1/ai_models', '/rest/v1/rpc/my_credits_cycle_v3', '/functions/v1/desk-brief', '/functions/v1/research-chat', '/api/home/latest', '/api/feature-feed', '/data/embedded_json/national_bill_analysis.json', '/data/ontology.json']) {
   if (!called(p)) problems.push(`never called ${p}`);
 }
 if (problems.length) {

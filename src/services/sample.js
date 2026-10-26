@@ -125,8 +125,11 @@ export async function searchRecords(query) {
 export async function recordBrief({ module, row, generate = false }) {
   const saved = extraFiles['../sample/record-briefs.json'] ? await extraFiles['../sample/record-briefs.json']() : [];
   const title = rowTitle(row, '').toLowerCase();
+  // A saved brief belongs to this record when its headline names the record as a whole phrase
+  // ("NIFTY 50" is not "NIFTY 500").
+  const named = new RegExp(`(^|[^a-z0-9])${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[^a-z0-9])`);
   const hit = title.length > 3 && Array.isArray(saved)
-    ? saved.find((b) => b.feature === module.feature && String(b.headline || '').toLowerCase().includes(title))
+    ? saved.find((b) => b.feature === module.feature && named.test(String(b.headline || '').toLowerCase()))
     : null;
   if (hit) {
     const p = hit.points || {};
@@ -140,7 +143,7 @@ export async function recordBrief({ module, row, generate = false }) {
   return {
     ok: true, state: 'ready', format: 2, sample: true, model: 'sample', writtenAt: new Date().toISOString(),
     brief: `Sample mode: the live app asks nter.pro's AI to write this brief. The record's own fields are ${fields.map((f) => `${f.label.toLowerCase()} “${f.value}”`).join(', ')}.`,
-    why: '', watch: '', tags: [module.title],
+    why: 'Sample mode: no AI was asked; the live app writes this from the record once and keeps it for every reader.', watch: '', tags: [module.title],
   };
 }
 

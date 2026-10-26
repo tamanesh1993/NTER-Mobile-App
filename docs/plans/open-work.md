@@ -32,3 +32,5 @@ commit hash when they land.
 | 26 Oct 2026 | First version: all screens on the live backend, sample mode, Android and iOS projects, CI with APK | 4b24b7f |
 | 26 Oct 2026 | Phone apps sign in with email and password only while NTER is unchanged | 74c4616 |
 | 26 Oct 2026 | AI model list loads after sign-in (ai_models is closed to anonymous visitors) | 0efc93b |
+| 26 Oct 2026 | Handover package: website-style layout, database kit, sample smoke test in CI | bf3d5c6 |
+| 26 Oct 2026 | Desk card: nter.pro's record panel and NTER animation on every record, website adapters for 34 modules, website brief flow and payload; Ask AI's Desk section renamed Library; every-button sweep in CI | (this change) |

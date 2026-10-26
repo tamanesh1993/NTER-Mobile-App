@@ -21,8 +21,8 @@ Sign in with an nter.pro account, then work down this list. The last column is t
 | 2 | Sign in | Home; your perspective is remembered | D |
 | 3 | Home | "LIVE · LATEST" (not SAVED), today's nter.news stories, markets with today's numbers | A, C |
 | 4 | Library → National → Legislative → Bill Passage | 9,800+ records, search works, Next page works | C (desk records) |
-| 5 | Open a bill | Fields, source link, "Write the AI brief" or a brief already there | H |
-| 6 | Write the AI brief | A brief appears within ~10 s | H (new row at the top) |
+| 5 | Open a bill | The desk card slides in from the right; "NTER is thinking" plays for 2.5 s; then the card as on nter.pro: title, stage badge, 01 At a glance, stage history, 02 About this bill with the Niyantran analysis | H |
+| 6 | Open a record nobody has opened before | "Writing the AI brief…" during the animation, then the brief (written once, at nter.pro's cost, for every later reader) | H (new row at the top) |
 | 7 | Tap the bell on a module | "Added to your watchlist"; it shows under My watchlist on Home and on nter.pro | G |
 | 8 | Ask AI about this record | An answer with numbered citations; tap a number to see the source | E |
 | 9 | Me → credits | The balance went down by the answer's cost | D, F |
@@ -35,7 +35,7 @@ Send screenshots of anything that looks wrong.
 
 ## 2. The backend calls the app makes
 
-From a Mac or PC with Node 22, in this repo:
+From a Mac or PC with Node 24, in this repo:
 
 ```bash
 npm install

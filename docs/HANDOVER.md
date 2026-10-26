@@ -11,7 +11,7 @@ no migration to run (`../supabase/README.md`).
 
 | Part | Status |
 | --- | --- |
-| Screens | Welcome (site globe), sign in / sign up / reset, perspective, Home (nter.news feed, desks, markets, watchlist), Library (8 desks → sectors → 120 modules → records), record (fields, AI brief, PDF, pin, watch), search, Ask AI (Desk · AI chat · Studio, attachments incl. PDFs, model/effort by plan, citations, follow-ups, history, stop), Quick Exit (94 documents) → Make → Studio (gap markers, PDF/Word), Me (plan, credits, perspective, writing profile, watchlist, library, theme, about) |
+| Screens | Welcome (site globe), sign in / sign up / reset, perspective, Home (nter.news feed, desks, markets, watchlist), Library (8 desks → sectors → 120 modules → records), desk card (nter.pro's record panel with the NTER animation; PDF, pin, watch), search, Ask AI (Library · AI chat · Studio, attachments incl. PDFs, model/effort by plan, citations, follow-ups, history, stop), Quick Exit (94 documents) → Make → Studio (gap markers, PDF/Word), Me (plan, credits, perspective, writing profile, watchlist, library, theme, about) |
 | Native projects | `android/` (app id `pro.nter.app`, target API 36), `ios/` (Swift Package Manager, no CocoaPods) |
 | Builds | `npm run build` (phones), `build:web` (installable web app), `build:sample` (offline demo) |
 | CI | `.github/workflows/ci.yml`: lint, unit tests, three builds, two browser smoke tests, Android debug APK |
@@ -44,6 +44,29 @@ table, grant, policy and RPC the app uses: `../supabase/schema/app-surface.sql`.
 **Fixed on 26 Oct:** the AI model list loaded before sign-in; `ai_models` is readable only by
 signed-in members, so it came back empty and Ask AI looked disconnected. It now loads on sign-in
 (commit 0efc93b).
+
+## The desk card
+
+Tapping any record (a bill, notice, order, front, register row) opens nter.pro's own desk card from
+the right, as the website opens its side panel:
+
+1. **The NTER animation** ("NTER is thinking") — the website's `nter-record-loader` web component,
+   copied unchanged to `public/animation/` — plays for 2.5 s while the AI brief is read.
+2. **The card** — the website's record panel: title, badge, links, *01 At a glance* (tiles plus a
+   map, stage timeline or value board), *02 About* with the Niyantran analysis, Quick exit, related
+   records, source and as-of. The 34 modules the website has a card adapter for (bills, questions,
+   pipeline, regulators, MPs, affidavits, cabinet, morning brief, Open Fronts, alliances, sanctions,
+   aid, nuclear, heads of state, trade, commodities, constitutions, courts, tribunals, WTO, ICJ/ICC,
+   NCLT…) use the website's adapter code unchanged; every other module gets the same card built from
+   its fields (`src/deskcard/genericModel.js`, the rules of the website's RecordDetail).
+3. **The brief** follows the website exactly: read first (never writes); if nothing is stored, the
+   card says "Writing the AI brief…" and the platform writes it once for every later reader; if
+   another reader is writing it, the card waits. The row is sent byte-for-byte as the website sends
+   it, so app and website share the same stored briefs.
+
+The copied files and the website commit they came from are listed in `src/shell/website-sync.json`;
+`npm run sync:website -- <website checkout>` refreshes them, and a unit test fails if a copy is
+edited here.
 
 ## To take it live
 

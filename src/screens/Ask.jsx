@@ -1,4 +1,4 @@
-// Ask AI: three sections — Desk (browse and attach), AI chat (preselected) and Studio — with the
+// Ask AI: three sections — Library (the desks, to browse and attach), AI chat (preselected) and Studio — with the
 // Quick Exit shutter in the top-right corner.
 import { useEffect, useRef } from 'react';
 import { useApp } from '../state/app.jsx';
@@ -25,7 +25,7 @@ function AskHeader() {
       <button type="button" className="ib" onClick={() => openSheet('history')} aria-label="Your conversations"><Icon name="history" /></button>
       <div className="segc" role="tablist">
         <div className="ind" style={{ transform: `translateX(${idx * 100}%)` }} />
-        {[['desk', 'Desk'], ['chat', 'AI chat'], ['studio', 'Studio']].map(([k, l]) => (
+        {[['desk', 'Library'], ['chat', 'AI chat'], ['studio', 'Studio']].map(([k, l]) => (
           <button key={k} type="button" role="tab" aria-selected={seg === k} className={seg === k ? 'on' : ''} onClick={() => setSeg(k)}>{l}</button>
         ))}
       </div>

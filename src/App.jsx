@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { AppProvider, useApp } from './state/app.jsx';
 import { ChatProvider } from './state/chat.jsx';
 import { StudioProvider } from './state/studio.jsx';
@@ -11,7 +12,8 @@ import Ask from './screens/Ask.jsx';
 import Library, { DeskScreen } from './screens/Library.jsx';
 import Sector from './screens/Sector.jsx';
 import ModuleScreen from './screens/Module.jsx';
-import RecordScreen from './screens/Record.jsx';
+// The desk card (the website's adapters and their data) loads the first time a record is opened.
+const RecordScreen = lazy(() => import('./screens/Record.jsx'));
 import Search from './screens/Search.jsx';
 import Make from './screens/Make.jsx';
 import Me, { MyLibrary, About } from './screens/Me.jsx';
@@ -36,7 +38,7 @@ function TabStack({ id, active }) {
         const { key: entryKey, ...props } = entry;
         return (
           <div key={`${i}-${entry.v}-${entryKey || ''}`} className={`layer${i < stack.length - 1 ? ' under' : ''}`}>
-            <View {...props} />
+            <Suspense fallback={<div className="view push" />}><View {...props} /></Suspense>
           </div>
         );
       })}

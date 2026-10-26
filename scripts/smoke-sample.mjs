@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // End-to-end smoke test of the whole app on the bundled sample (no network): every tab, the
-// desk → module → record path, Quick Exit → Make → Studio → PDF and Word export, Ask AI with a
+// desk → module → desk card path (NTER animation, then the website's card), Quick Exit → Make → Studio → PDF and Word export, Ask AI with a
 // cited answer, history, Me, plans and the dark theme. Fails on any page error.
 //
 //   npm run test:smoke        (SMOKE_SHOTS=folder to keep screenshots)
@@ -66,12 +66,14 @@ try {
     await vis('.rrow').first().waitFor();
     await shot('03-module');
   });
-  await step('record with fields and sample brief', async () => {
+  await step('desk card: NTER animation, then the website card with its AI brief', async () => {
     await vis('.rrow .ib').first().click();
     await vis('.rrow button').first().click();
-    await vis('.fields').waitFor();
-    await vis('.brief .pbtn').click();
-    await vis('.brief p').first().waitFor();
+    await vis('nter-record-loader').waitFor();
+    await shot('04a-animation');
+    await vis('.rp .rp-eyebrow').filter({ hasText: '01 · At a glance' }).waitFor({ timeout: 8000 });
+    await vis('.rp-brief .rd-ai-brief').first().waitFor({ timeout: 8000 });
+    await vis('.rp-tiles .rp-tile').first().waitFor();
     await shot('04-record');
   });
   await step('record PDF download', async () => {

@@ -23,7 +23,9 @@
     "check:backend": "node scripts/check-backend.mjs",
     "test:smoke:live": "node scripts/smoke-live-mock.mjs",
     "test:smoke": "node scripts/smoke-sample.mjs",
-    "seed:local": "node scripts/make-seed.mjs"
+    "seed:local": "node scripts/make-seed.mjs",
+    "test:buttons": "node scripts/smoke-buttons.mjs",
+    "sync:website": "node scripts/sync-website-record.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",

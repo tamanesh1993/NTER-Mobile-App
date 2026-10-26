@@ -1,5 +1,5 @@
-# Lint, unit tests, every build, both end-to-end smoke tests, and an installable Android debug APK
-# on every push. Free on GitHub.
+# Lint, unit tests, every build, both end-to-end smoke tests, a press of every button (with its log
+# as an artifact), and an installable Android debug APK on every push. Free on GitHub.
 name: CI
 
 on:
@@ -41,6 +41,26 @@ jobs:
         with:
           name: web-app
           path: dist-web
+
+  buttons:
+    name: Every button
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Press every button on every screen (sample data, no network)
+        run: npm run test:buttons
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: button-sweep-log
+          path: test-results/buttons
 
   android:
     name: Android APK

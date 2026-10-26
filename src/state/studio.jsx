@@ -1,4 +1,4 @@
-// Which Ask AI section is showing (Desk · AI chat · Studio) and which document Studio has open.
+// Which Ask AI section is showing (Library · AI chat · Studio) and which document Studio has open.
 // Documents themselves are kept by the app state (made / saveMade) on this device.
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { useApp } from './app.jsx';

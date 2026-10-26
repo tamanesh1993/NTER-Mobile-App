@@ -84,7 +84,7 @@ export default function ModuleScreen({ module }) {
         {feed.loading && !feed.data ? <Spinner label="Loading records" /> : null}
         <ErrorLine error={feed.error} onRetry={feed.reload} />
         <div className="list">
-          {rows.map((row, i) => <RecordRow key={i} module={module} row={row} columns={feed.data?.columns} onOpen={() => push({ v: 'record', module, row })} />)}
+          {rows.map((row, i) => <RecordRow key={i} module={module} row={row} columns={feed.data?.columns} onOpen={() => push({ v: 'record', module, row, rows: feed.data?.rows || rows, feed: feed.data || null })} />)}
           {!feed.loading && !rows.length && !feed.error ? <div className="empty"><b>{query ? 'No records match' : 'No records to show yet'}</b>{query ? 'Try fewer words.' : 'This module has nothing published for now.'}</div> : null}
         </div>
         {paged && pages > 1 ? (

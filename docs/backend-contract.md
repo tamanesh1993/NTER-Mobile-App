@@ -47,13 +47,36 @@ Desk ids vs module tiers: `global → geopolitics`, `law → judiciary`, `econom
 
 When `feature-feed` fails, the app shows the module's saved rows and says so (the website does the same with its archive).
 
-## Record brief
+## Record brief (the desk card)
 
-`POST functions/v1/desk-brief` with `{scope: 'record', tier, feature, row, mode?: 'read'}` (row ≤ ~30 KB, scalar fields).
+`POST functions/v1/desk-brief` with `{scope: 'record', tier, feature, row, mode?: 'read'}`. The row
+is sent exactly as the website sends it (`recordPayloadRow` in `src/services/live.js`, from the
+website's `src/lib/deskBrief.js`): whole when its JSON is ≤ 30,000 bytes, else 40 fields of ≤ 220
+characters. The server hashes what it is sent, so the same row from the app and from the website
+reads the same stored brief.
 
 - `mode: 'read'` only looks: `{state: 'ready' | 'pending' | 'missing' | 'failed' | 'unavailable', …}`.
-- Without `mode` the function claims and writes the brief (not charged to the member).
-- Ready, format 2: `{format, brief, why, watch, tags, model, writtenAt}`; older format 1: `{headline, points[]}`. Pending is polled every 4 s.
+- Without `mode` the function claims and writes the brief (paid by the platform, not the member).
+- Ready, format 2: `{format, brief, why, watch, tags, model, writtenAt}`; older format 1: `{headline, points[]}`.
+- Flow (`src/deskcard/useDeskBrief.js`, the website's `useRecordBrief`): read; on `missing` write
+  once; on `pending` read again every 2 s for up to 60 s; show the result after the 2.5 s NTER
+  animation; keep it for the session. Signed-out readers are not sent to the function.
+
+## Analysis packs for desk cards
+
+The bill, question, pipeline and regulatory cards add the website's analysis packs, read from
+www.nter.pro like the website reads them (phone apps directly; browsers through the `/data` proxy
+or rewrite):
+
+| Request | Used by |
+| --- | --- |
+| `GET /data/embedded_json/national_bill_analysis.json` (+ `_identity.json`) | Bill Passage Probability Index (base rate, precedent, days in stage, summary, key changes, PDF) |
+| `GET /data/embedded_json/national_question_database_analysis.json` | Parliamentary Question Database |
+| `GET /data/embedded_json/national_policy_pipeline_analysis.json` | Policy Pipeline Tracker |
+| `GET /data/embedded_json/national_regulatory_watch_analysis.json`, `GET /data/ontology.json` | Regulatory Body Watch (and the bill PDF link) |
+
+They are fetched once per app session and only when such a card is opened (the bill pack is about
+10 MB). Without them the card still shows everything from the row.
 
 ## Research chat
 

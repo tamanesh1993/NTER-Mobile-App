@@ -49,6 +49,8 @@ export default defineConfig({
     proxy: {
       // API_PROXY=http://localhost:3000 points the browser version at a local copy of the website.
       '/api': { target: process.env.API_PROXY || 'https://www.nter.pro', changeOrigin: true, secure: true },
+      // The desk cards' analysis packs (src/lib/websiteData.js).
+      '/data': { target: process.env.API_PROXY || 'https://www.nter.pro', changeOrigin: true, secure: true },
     },
   },
   build: {

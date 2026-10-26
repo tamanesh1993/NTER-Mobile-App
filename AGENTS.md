@@ -38,6 +38,12 @@ Vitest with tests next to the code, `src/lib/supabaseClient.js`, `src/lib/citati
   update `docs/backend-contract.md`, the live service and the sample together.
 - Database access while building or debugging is read-only (`select`, read RPCs). See
   `supabase/README.md`.
+- **The desk card is the website's.** `src/shell/record/` (adapters, visuals, contract,
+  stylesheet), `public/animation/` (the NTER record animation) and the `src/lib`, `src/data` and
+  `src/desks` files listed in `src/shell/website-sync.json` are copies of `ddllabs/niyantran` at the
+  commit named there. Do not edit them here (a unit test checks their hashes): change the website,
+  then run `npm run sync:website -- <path to a website checkout>`. The phone-only parts are in
+  `src/deskcard/`.
 
 ## Definition of done
 
@@ -49,6 +55,7 @@ npm test                    # unit tests (src/**/*.test.js)
 npm run build && npm run build:web && npm run build:sample
 npm run test:smoke          # whole app in Chromium on the sample, no network
 npm run test:smoke:live     # live build in Chromium against a stand-in backend
+npm run test:buttons        # every button on every reachable screen and sheet; log in test-results/buttons/
 ```
 
 `npm run check:backend` (against the real backend) is run before a release.
@@ -59,12 +66,14 @@ npm run test:smoke:live     # live build in Chromium against a stand-in backend
 src/services/   live.js (nter.pro backend) · sample.js (bundled snapshot) · shape.js · chatState.js
 src/state/      app.jsx (account, navigation, sheets) · chat.jsx (Ask AI) · studio.jsx
 src/screens/    one file per screen        src/sheets/   bottom sheets, Quick Exit shutter
+src/deskcard/   the desk card on the phone: DeskCard.jsx, useDeskBrief.js, genericModel.js
+src/shell/record/  copied from the website: record adapters, visuals, contract, recordPanel.css
 src/ui/         icons, markdown, shared pieces
 src/lib/        supabaseClient, http, sse, storage, exporters, files, citationMarkers
 src/data/       desks (generated), personas, plans, Quick Exit catalogue, stories
 src/sample/     the read-only snapshot used by VITE_DATA_MODE=sample and by the tests
 supabase/       schema snapshot of what the app reads, sample seed, local replica guide
-scripts/        export-sample, check-backend, smoke tests
+scripts/        export-sample, check-backend, smoke tests, button sweep, sync-website-record
 android/ ios/   Capacitor native projects
 docs/           start here, backend contract, testing, owner actions, open work, handover
 ```
