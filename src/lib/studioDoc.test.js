@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { inlineHtml, markdownToBlocks, sanitizeHtml, blocksToText } from '../src/lib/studioDoc.js';
-import { makeInstruction } from '../src/screens/Make.jsx';
-import { QE_DATA } from '../src/data/quickExit.js';
-import { PERSONAS } from '../src/data/personas.js';
+import { inlineHtml, markdownToBlocks, sanitizeHtml, blocksToText } from './studioDoc.js';
+import { makeInstruction } from '../screens/Make.jsx';
+import { QE_DATA } from '../data/quickExit.js';
+import { PERSONAS } from '../data/personas.js';
 
 describe('Studio documents', () => {
   it('escapes text and draws gap markers', () => {

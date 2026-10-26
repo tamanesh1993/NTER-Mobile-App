@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   rowTitle, rowFields, effectivePlan, creditsSummary, planAllows, recordAttachment, splitCitationMarkers,
   normalizeBrief, mergeFigures, hostOf, pickColumns,
-} from '../src/services/shape.js';
+} from './shape.js';
 
 describe('records', () => {
   it('titles a record from its most telling field', () => {

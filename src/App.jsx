@@ -33,9 +33,10 @@ function TabStack({ id, active }) {
       {stack.map((entry, i) => {
         const View = VIEWS[entry.v];
         if (!View) return null;
+        const { key: entryKey, ...props } = entry;
         return (
-          <div key={`${i}-${entry.v}-${entry.key || ''}`} className={`layer${i < stack.length - 1 ? ' under' : ''}`}>
-            <View {...entry} />
+          <div key={`${i}-${entry.v}-${entryKey || ''}`} className={`layer${i < stack.length - 1 ? ' under' : ''}`}>
+            <View {...props} />
           </div>
         );
       })}

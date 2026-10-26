@@ -1,4 +1,5 @@
-# Free on GitHub: tests, the web build, and an installable Android debug APK on every push.
+# Lint, unit tests, every build, both end-to-end smoke tests, and an installable Android debug APK
+# on every push. Free on GitHub.
 name: CI
 
 on:
@@ -6,32 +7,51 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
+  app:
+    name: Build and tests
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run lint
       - run: npm test
+      - run: npm run build
       - run: npm run build:web
+      - run: npm run build:sample
+      - name: Browser for the smoke tests
+        run: npx playwright install --with-deps chromium
+      - name: Smoke test, sample data (no network)
+        run: npm run test:smoke
+      - name: Smoke test, live build against a stand-in backend
+        run: npm run test:smoke:live
       - uses: actions/upload-artifact@v4
         with:
           name: web-app
           path: dist-web
 
   android:
-    needs: test
+    name: Android APK
+    needs: app
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - uses: actions/setup-java@v4
         with:

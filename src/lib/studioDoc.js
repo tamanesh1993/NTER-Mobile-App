@@ -1,6 +1,6 @@
 // Studio documents: an answer or a Quick Exit document turned into editable blocks, with the
 // gap markers ([NOT IN RECORD → …], [FROM INSTRUMENT TEXT → …], [you: …]) drawn as marks.
-import { splitCitationMarkers } from '../services/shape.js';
+import { splitCitationMarkers } from './citationMarkers.js';
 
 export const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 

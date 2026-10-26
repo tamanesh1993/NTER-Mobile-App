@@ -5,7 +5,7 @@
   "type": "module",
   "description": "nter.pro on a phone: the mobile app for the Niyantran research terminal (React + Vite + Capacitor).",
   "engines": {
-    "node": ">=22"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "vite",
@@ -16,12 +16,14 @@
     "build:preview": "PREVIEW=1 VITE_DATA_MODE=sample vite build --outDir dist-preview",
     "preview": "vite preview",
     "test": "vitest run",
-    "lint": "eslint --max-warnings 0 src tests",
+    "lint": "eslint --max-warnings 0 src scripts eslint.config.js vite.config.js vitest.config.js vitest.setup.js",
     "cap:sync": "npm run build && cap sync",
     "android": "npm run build && cap sync android && cap open android",
     "ios": "npm run build && cap sync ios && cap open ios",
     "check:backend": "node scripts/check-backend.mjs",
-    "test:smoke:live": "node scripts/smoke-live-mock.mjs"
+    "test:smoke:live": "node scripts/smoke-live-mock.mjs",
+    "test:smoke": "node scripts/smoke-sample.mjs",
+    "seed:local": "node scripts/make-seed.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",

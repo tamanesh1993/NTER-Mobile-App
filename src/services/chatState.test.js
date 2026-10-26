@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyFrame, finishTurn, newTurn, turnsFromMessages } from '../src/services/chatState.js';
+import { applyFrame, finishTurn, newTurn, turnsFromMessages } from './chatState.js';
 
 describe('a research-chat turn', () => {
   it('builds the answer frame by frame', () => {

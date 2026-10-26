@@ -47,17 +47,12 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     proxy: {
-      '/api': { target: 'https://www.nter.pro', changeOrigin: true, secure: true },
+      // API_PROXY=http://localhost:3000 points the browser version at a local copy of the website.
+      '/api': { target: process.env.API_PROXY || 'https://www.nter.pro', changeOrigin: true, secure: true },
     },
   },
   build: {
     target: 'es2022',
     chunkSizeWarningLimit: 1200,
-  },
-  test: {
-    environment: 'jsdom',
-    globals: true,
-    include: ['src/**/*.test.{js,jsx}', 'tests/**/*.test.{js,jsx}'],
-    setupFiles: ['tests/setup.js'],
   },
 });

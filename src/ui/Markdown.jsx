@@ -1,7 +1,7 @@
 // Renders an AI answer: headings, lists, tables, quotes, emphasis, links, and the [n] citation
 // markers nter.pro's research-chat writes, drawn as tappable bubbles. No HTML from the answer is
 // ever injected.
-import { splitCitationMarkers } from '../services/shape.js';
+import { splitCitationMarkers } from '../lib/citationMarkers.js';
 
 const HEADING = /^(#{1,6})\s+(.*)$/;
 const ITEM = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;

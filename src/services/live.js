@@ -3,7 +3,7 @@
 // security decides what they can read and change); desks and the news feed come from
 // www.nter.pro's public /api routes; answers come from the research-chat edge function.
 // Nothing here uses a server secret.
-import { supabase, accessToken } from '../lib/supabase.js';
+import { supabase, accessToken } from '../lib/supabaseClient.js';
 import { apiGet, HttpError } from '../lib/http.js';
 import { functionsUrl, SUPABASE_KEY, STREAM_CHAT, API_BASE } from '../lib/config.js';
 import { readSseFrames } from '../lib/sse.js';

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import * as sample from '../src/services/sample.js';
-import { ALL_MODULES } from '../src/data/desks.js';
-import { applyFrame, newTurn } from '../src/services/chatState.js';
+import * as sample from './sample.js';
+import { ALL_MODULES } from '../data/desks.js';
+import { applyFrame, newTurn } from './chatState.js';
 
 const mod = (feature) => ALL_MODULES.find((m) => m.feature === feature);
 

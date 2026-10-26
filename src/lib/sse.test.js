@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readSseFrames, parseSseBlock } from '../src/lib/sse.js';
+import { readSseFrames, parseSseBlock } from './sse.js';
 
 const body = 'data: {"conversation":{"id":"c"}}\n\ndata: {"chunk":"Hi"}\r\n\r\n: keep-alive\n\ndata: {"done":{"message_id":"m"}}\n\ndata: {"credits":5}\n\ndata: [DONE]\n\n';
 

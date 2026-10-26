@@ -27,18 +27,34 @@ credits, conversations and watchlist, the same eight desks and 120 modules, and 
 | Documents | pdf-lib (with Inter) and docx, made on the phone; pdf.js reads attached PDFs |
 | Builds | GitHub Actions: tests, web build and an Android APK on every push |
 
+**New here? Read `docs/START-HERE.md`, then `docs/HANDOVER.md` (state of the app and the steps to
+take it live).** Rules for anyone changing this repo, people or AI agents: `AGENTS.md`.
+
 ## Run it
+
+Node 24 (`nvm use` reads `.nvmrc`).
 
 ```bash
 npm install
-npm run dev:sample   # offline, with the bundled read-only snapshot — no sign-in needed
-npm run dev          # live: nter.pro's backend (sign in with your nter.pro account)
-npm test             # 29 unit tests
-npm run lint
-npm run check:backend   # checks the live nter.pro backend the app uses (see docs/testing.md)
+npm run dev:sample        # offline, with the bundled read-only snapshot — no sign-in needed
+npm run dev               # live: nter.pro's backend on http://localhost:5173 (sign in with your nter.pro account)
 ```
 
-`npm run dev` proxies `/api` to www.nter.pro, so the browser preview reads the live public feeds.
+`npm run dev` proxies `/api` to www.nter.pro (or `API_PROXY`), so the browser preview reads the
+live public feeds. Port 5173 is the origin nter.pro's AI functions already accept.
+
+## Test it
+
+```bash
+npm run lint              # ESLint, zero warnings
+npm test                  # 30 unit tests (Vitest), next to the code as *.test.js
+npm run test:smoke        # the whole app in a headless browser on sample data — 15 steps, no network
+npm run test:smoke:live   # the live build against a stand-in backend — every request checked against NTER's contract
+npm run check:backend     # read-only checks of the real nter.pro backend (docs/testing.md)
+```
+
+The smoke tests need Chromium once: `npx playwright install chromium`. CI runs all of the above
+except `check:backend` on every push.
 
 ### Data modes
 
@@ -66,21 +82,33 @@ installs on any Android phone.
 Other builds: `npm run build:web` (installable web app with offline support, in `dist-web/`),
 `npm run build:sample` (offline demo), `npm run build:preview` (demo that runs from any folder).
 
-App id `pro.nter.app`; Google sign-in returns to `pro.nter.app://auth/callback`.
+App id `pro.nter.app`. Phone builds sign in with email and password; Google sign-in on phones
+returns to `pro.nter.app://auth/callback` once that redirect URL is added in NTER (see
+`docs/HANDOVER.md`).
 
 ## Settings
 
-Copy `.env.example` to `.env` to override:
+Copy `.env.example` to `.env.local` to override:
 
 | Variable | Default |
 | --- | --- |
 | `VITE_SUPABASE_URL` | `https://vfgcppstyzjarlzyqdac.supabase.co` |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | the website's publishable key (public by design) |
-| `VITE_API_BASE` | `https://www.nter.pro` |
+| `VITE_API_BASE` | `https://www.nter.pro` (phone apps) |
+| `VITE_WEB_API_BASE` | empty — browsers use the same site (`vercel.json` rewrites `/api`) |
 | `VITE_DATA_MODE` | `live` |
 | `VITE_STREAM_CHAT` | `0` — set to `1` once the app's origins are in `ALLOWED_ORIGINS` |
+| `VITE_GOOGLE_ON_PHONE` | `0` — set to `1` once the redirect URL above is added |
+| `API_PROXY` (dev only) | `https://www.nter.pro` — point at a local website server for a separate backend copy |
 
 No secret keys are used or needed. Never put a service-role key in this app.
+
+## Database
+
+The app has no database of its own and adds nothing to NTER, so there is nothing to migrate.
+`supabase/README.md` lists where each thing the app saves lands in NTER, and how to run a separate
+local copy of the backend; `supabase/schema/app-surface.sql` is a snapshot of everything the app
+depends on, and `supabase/seed/mobile-sample.sql` is sample data for that local copy.
 
 ## Layout
 
@@ -91,10 +119,17 @@ src/
   screens/    Welcome, Auth, Persona, Home, Story, Library, Sector, Module, Record, Search, Ask, Studio, Make, Me
   sheets/     every bottom sheet, and the Quick Exit shutter
   ui/         icons, markdown with citations, shared pieces
-  lib/        Supabase client, HTTP, event stream, storage, exports, files
+  lib/        supabaseClient.js, HTTP, event stream, citation markers (same rules as the website), storage, exports, files
   data/       desks, personas, plans, Quick Exit catalogue, stories
   sample/     the read-only snapshot
+  **/*.test.js  unit tests sit next to the code they test, as on the website
+scripts/      smoke tests, backend checks, sample export, local seed
+supabase/     schema snapshot, local seed, how to run a separate copy (no migrations: nothing to add)
+android/ ios/ the native projects (Capacitor)
 docs/
+  START-HERE.md         reading order and how the setup works
+  HANDOVER.md           state on 26 Oct 2026, verification results, steps to go live
+  plans/open-work.md    open items and the done log
   backend-contract.md   every call the app makes, and its shape
   owner-actions.md      settings and accounts only the owner can change
   testing.md            how to test the app, the API and the database
@@ -103,8 +138,9 @@ docs/
 
 ## Before releasing
 
-Read `docs/owner-actions.md`: Google sign-in redirect URL, optional streaming origins, store
-accounts, the payment rule for phone apps, account deletion, and one database security advisory.
+Read `docs/HANDOVER.md` (steps to go live) and `docs/owner-actions.md`: streaming origins, Google
+sign-in redirect URL, store accounts, the payment rule for phone apps, account deletion, and one
+database security advisory.
 
 Formatted, not filed: documents the app makes are drafts to check before signing. Answers and
 briefs are information, not advice.
