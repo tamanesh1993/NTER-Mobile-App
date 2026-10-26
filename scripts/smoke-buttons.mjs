@@ -59,19 +59,17 @@ await context.route(/^https?:\/\/(?!localhost)/, (route) => {
 
 const ACTIVE = '.tabstack:not(.off) .layer:not(.under), .app > .view, .sheethost, .sheet, [role=dialog]';
 
-/** Where the app is: the screen in front (its header) and any open sheet. */
+/** Where the app is: the kind of screen in front (not its record or module), its section, and any open sheet. */
 const signature = () => page.evaluate(() => {
-  const sheet = document.querySelector('.sheethost .sh-hd .t, .sheethost .sh-hd b, .sheethost [aria-label]');
-  const layers = [...document.querySelectorAll('.tabstack:not(.off) .layer:not(.under)')];
-  const top = layers.pop();
+  const sheet = document.querySelector('.sheethost [role=dialog]');
+  const sheetName = sheet ? (sheet.getAttribute('aria-label') || sheet.querySelector('.sh-hd .t b, .sh-hd b')?.textContent || 'sheet').trim().slice(0, 30) : '';
+  const top = [...document.querySelectorAll('.tabstack:not(.off) .layer:not(.under)')].pop();
   const app = document.querySelector('.app > .view');
-  const view = top || app;
-  const head = view?.querySelector('.hdr .t')?.childNodes?.[0]?.textContent || view?.querySelector('h1, h2, .lead b, .lead')?.textContent || '';
-  const cls = view?.querySelector('.view')?.className || view?.className || '';
+  const kind = top?.dataset.view || (app ? (app.querySelector('.welcome') ? 'welcome' : (app.querySelector('h1, h2, .hdr .t')?.textContent || 'screen').trim().slice(0, 30)) : '?');
   const tab = document.querySelector('.tabstack:not(.off) .tabbar button.on span')?.textContent || '';
-  const seg = view?.querySelector('.segc button.on')?.textContent || '';
-  const card = view?.querySelector('.rp') ? 'card' : view?.querySelector('nter-record-loader') ? 'loading' : '';
-  return [tab, head.trim().slice(0, 40), cls.split(' ').slice(0, 3).join('.'), seg, card, sheet ? `sheet:${(sheet.textContent || sheet.getAttribute('aria-label') || '').trim().slice(0, 30)}` : ''].filter(Boolean).join(' › ');
+  const seg = top?.querySelector('.segc button.on')?.textContent || '';
+  const card = top?.querySelector('.rp') ? 'card' : top?.querySelector('nter-record-loader') ? 'animation' : '';
+  return [tab, kind, seg, card, sheetName && `sheet:${sheetName}`].filter(Boolean).join(' › ');
 });
 
 /** The distinct buttons on the screen in front, each with a stable way to find it again. */
@@ -134,12 +132,12 @@ async function press(b) {
 
 let snapshot = {};
 async function reset(signedIn) {
-  await page.goto('about:blank');
-  await page.goto(BASE);
+  // The page is on the app's origin: set its storage, then load the app once.
+  if (!page.url().startsWith(BASE)) await page.goto(BASE);
   await page.evaluate(({ snap, signedIn }) => { localStorage.clear(); if (signedIn) for (const [k, v] of Object.entries(snap)) localStorage.setItem(k, v); }, { snap: snapshot, signedIn });
   await page.goto(BASE);
   await page.waitForSelector(signedIn ? '.tabstack:not(.off) .feed-hd' : 'text=Open the terminal', { timeout: 15000 });
-  await page.waitForTimeout(300);
+  await page.waitForTimeout(150);
 }
 
 async function replay(start, path) {
@@ -147,7 +145,7 @@ async function replay(start, path) {
   for (const b of path) {
     const r = await press(b);
     if (r !== 'pressed') throw new Error(`could not replay "${b.label}"`);
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(400);
   }
 }
 
@@ -191,7 +189,9 @@ while (queue.length && states.size < MAX_STATES) {
     } catch (e) { result = 'not pressable'; issue('press failed', `${b.label}: ${e.message.split('\n')[0]}`); }
     if (result === 'gone') issue('button not found again', b.label);
     presses += 1;
-    await page.waitForTimeout(700);
+    await page.waitForTimeout(500);
+    if (process.env.BUTTONS_VERBOSE) console.log(`${sig}  ▸  ${b.label}  →  ${result}`);
+    if (presses % 25 === 0) console.log(`… ${presses} presses, ${states.size} screens, ${issues.length} issues`);
     const after = await signature().catch(() => '?');
     log.push({ from: sig, button: b.label, kind: b.kind, result, to: after, issues: issues.length - before });
     if (result === 'pressed' && after !== sig && !states.has(after) && path.length + 1 < MAX_DEPTH) queue.push({ start, path: [...path, b] });

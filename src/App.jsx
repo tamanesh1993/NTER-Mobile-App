@@ -12,13 +12,14 @@ import Ask from './screens/Ask.jsx';
 import Library, { DeskScreen } from './screens/Library.jsx';
 import Sector from './screens/Sector.jsx';
 import ModuleScreen from './screens/Module.jsx';
-// The desk card (the website's adapters and their data) loads the first time a record is opened.
-const RecordScreen = lazy(() => import('./screens/Record.jsx'));
 import Search from './screens/Search.jsx';
 import Make from './screens/Make.jsx';
 import Me, { MyLibrary, About } from './screens/Me.jsx';
 import SheetHost from './sheets/SheetHost.jsx';
 import { asset } from './lib/asset.js';
+
+// The desk card (the website's adapters and their data) loads the first time a record is opened.
+const RecordScreen = lazy(() => import('./screens/Record.jsx'));
 
 const ROOTS = { home: Home, ask: Ask, library: Library, me: Me };
 const VIEWS = { story: Story, desk: DeskScreen, sector: Sector, module: ModuleScreen, record: RecordScreen, search: Search, make: Make, mylib: MyLibrary, about: About };
@@ -31,13 +32,13 @@ function TabStack({ id, active }) {
   const Root = ROOTS[id];
   return (
     <div className={`tabstack${active ? '' : ' off'}`}>
-      <div className={`layer${stack.length ? ' under' : ''}`}><Root /></div>
+      <div className={`layer${stack.length ? ' under' : ''}`} data-view={id}><Root /></div>
       {stack.map((entry, i) => {
         const View = VIEWS[entry.v];
         if (!View) return null;
         const { key: entryKey, ...props } = entry;
         return (
-          <div key={`${i}-${entry.v}-${entryKey || ''}`} className={`layer${i < stack.length - 1 ? ' under' : ''}`}>
+          <div key={`${i}-${entry.v}-${entryKey || ''}`} className={`layer${i < stack.length - 1 ? ' under' : ''}`} data-view={entry.v}>
             <Suspense fallback={<div className="view push" />}><View {...props} /></Suspense>
           </div>
         );
