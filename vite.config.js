@@ -42,6 +42,10 @@ export default defineConfig({
     }),
   ],
   server: {
+    // nter.pro's edge functions accept http://localhost:5173 (the website's own dev address), so the
+    // browser version of the app always uses that port.
+    port: 5173,
+    strictPort: true,
     proxy: {
       '/api': { target: 'https://www.nter.pro', changeOrigin: true, secure: true },
     },
