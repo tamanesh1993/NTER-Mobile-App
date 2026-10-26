@@ -16,9 +16,12 @@ the database and the website were only read while the app was built.
 | Store | Cost | What you need |
 | --- | --- | --- |
 | Google Play | US$25 once | A Play Console developer account; an upload key (Android Studio → Build → Generate Signed Bundle) |
-| Apple App Store | US$99 a year | An Apple Developer account, a Mac with Xcode 16 or later |
+| Apple App Store | US$99 a year | An Apple Developer account (an organisation account needs a D-U-N-S number), a Mac with Xcode 26 or later — App Store Connect has accepted only Xcode 26 / iOS 26 SDK builds since 28 April 2026 |
 
-Both stores ask for a privacy policy URL (`https://www.nter.pro/privacy`) and a support contact.
+Both stores ask for a privacy policy URL (`https://www.nter.pro/privacy`), a support contact, and a
+demo login for the reviewers (make a test account on nter.pro with some credits).
+
+- **Google Play testing rule.** A personal developer account created after 13 November 2023 must run a closed test with at least 12 testers opted in for 14 consecutive days before it can publish to production. Organisation accounts are exempt. Google Play also requires new apps to be uploaded as an Android App Bundle (.aab), and from 31 August 2026 to target Android 16 (API 36) — this app already does.
 
 ## Store rules to know
 

@@ -56,7 +56,7 @@ website repository.
 npm run build          # web assets for the phone apps (in dist/)
 npx cap sync           # copy them into android/ and ios/
 npx cap open android   # Android Studio → Run, or Build → Generate Signed Bundle
-npx cap open ios       # Xcode (on a Mac) → Run, or Product → Archive
+npx cap open ios       # Xcode 26 (on a Mac) → Run, or Product → Archive
 ```
 
 No Android Studio? Every push to GitHub builds `app-debug.apk` (Actions → CI → artifacts) that
