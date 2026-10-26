@@ -7,6 +7,12 @@ import { PERSONAS, personaByDb } from '../data/personas.js';
 import { Header } from '../ui/kit.jsx';
 import Icon from '../ui/Icon.jsx';
 import { asset } from '../lib/asset.js';
+import { isNative } from '../lib/platform.js';
+import { GOOGLE_ON_PHONE } from '../lib/config.js';
+
+// Google sign-in needs pro.nter.app://auth/callback in NTER's redirect list, which is not added
+// (NTER stays unchanged), so the phone apps offer email and password only unless a build turns it on.
+const showGoogle = () => !isNative() || GOOGLE_ON_PHONE;
 
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
 
@@ -63,8 +69,7 @@ export function SignIn() {
           {error ? <div className="err" role="alert">{error}</div> : null}
           <button type="button" className="link" onClick={() => { setAuthEmail(email); setStage('forgot'); }}>Forgot password?</button>
           <button type="submit" className="pbtn" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
-          <div className="or">OR</div>
-          <GoogleButton />
+          {showGoogle() ? <><div className="or">OR</div><GoogleButton /></> : null}
         </form>
         <div className="signfoot">
           <button type="button" onClick={() => { setAuthEmail(email); setStage('signup'); }}>New to nter.pro? <b>Create an account</b></button>
@@ -116,8 +121,7 @@ export function SignUp() {
           </div>
           {error ? <div className="err" role="alert">{error}</div> : null}
           <button type="submit" className="pbtn" disabled={busy}>{busy ? 'Creating your account…' : 'Create account'}</button>
-          <div className="or">OR</div>
-          <GoogleButton />
+          {showGoogle() ? <><div className="or">OR</div><GoogleButton /></> : null}
         </form>
         <div className="signfoot">
           <button type="button" onClick={() => setStage('signin')}>Already a member? <b>Sign in</b></button>
