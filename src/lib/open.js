@@ -9,7 +9,10 @@ export async function openUrl(url) {
     const { Browser } = await import('@capacitor/browser');
     await Browser.open({ url, presentationStyle: 'popover', toolbarColor: '#f8f5f0' });
   } else {
-    window.open(url, '_blank', 'noopener');
+    // A real link click, which every browser (and embedded viewer) lets through.
+    const a = document.createElement('a');
+    a.href = u; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    document.body.appendChild(a); a.click(); a.remove();
   }
 }
 

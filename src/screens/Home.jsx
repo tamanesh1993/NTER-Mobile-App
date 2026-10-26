@@ -84,7 +84,7 @@ export function HomeFeed() {
         </div>
       ) : null}
       <div className="feed-hd">
-        <div className="tx"><div className="k"><i className="livedot" />{news.data?.fallback ? 'SAVED · LATEST' : 'LIVE · LATEST'}</div><h2>Latest</h2></div>
+        <div className="tx"><div className="k"><i className="livedot" />{news.data?.sample ? 'SAMPLE · LATEST' : news.data?.fallback ? 'SAVED · LATEST' : 'LIVE · LATEST'}</div><h2>Latest</h2></div>
         <button type="button" className="nnlink" onClick={() => openUrl('https://nter.news')} aria-label="Open nter.news"><NnLockup cls="xs" /><Icon name="ext" /></button>
       </div>
       {news.data?.fallback ? <div className="note-strip">nter.news could not be reached, so these are the last saved stories.</div> : null}
@@ -114,7 +114,7 @@ export function HomeFeed() {
 
       <DeskCarousel />
 
-      <div className="sec-hd" style={{ paddingTop: 14 }}><h2 style={{ fontSize: 16 }}>Markets</h2><p>{markets.data?.fallback ? 'LAST SAVED' : 'DELAYED'} · NSE · BSE · GLOBAL INDICES</p></div>
+      <div className="sec-hd" style={{ paddingTop: 14 }}><h2 style={{ fontSize: 16 }}>Markets</h2><p>{markets.data?.sample ? 'SAMPLE' : markets.data?.fallback ? 'LAST SAVED' : 'DELAYED'} · NSE · BSE · GLOBAL INDICES</p></div>
       {markets.loading && !markets.data ? <Spinner label="Loading markets" /> : null}
       <div className="mkt">
         {(markets.data?.rows || []).slice(0, 9).map((m) => {
