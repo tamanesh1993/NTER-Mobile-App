@@ -47,6 +47,7 @@ page.on('requestfailed', (r) => { if (r.url().startsWith(BASE) && !/aborted/i.te
 page.on('response', (r) => { if (r.url().startsWith(BASE) && r.status() >= 400) issue('http error', `${r.status()} ${r.url()}`); });
 page.on('dialog', async (d) => { log.push({ path: current.path, button: current.button, dialog: `${d.type()}: ${d.message()}` }); await d.dismiss().catch(() => {}); });
 page.on('filechooser', (fc) => { log.push({ path: current.path, button: current.button, filechooser: true }); fc.setFiles([]).catch(() => {}); });
+// A file arrives a moment after its button: logged against the press in progress when it lands.
 page.on('download', (d) => log.push({ path: current.path, button: current.button, download: d.suggestedFilename() }));
 context.on('page', async (p) => { opened.push(p.url()); await p.close().catch(() => {}); });
 await context.route(/^https?:\/\/(?!localhost)/, (route) => {
@@ -65,7 +66,9 @@ const signature = () => page.evaluate(() => {
   const sheetName = sheet ? (sheet.getAttribute('aria-label') || sheet.querySelector('.sh-hd .t b, .sh-hd b')?.textContent || 'sheet').trim().slice(0, 30) : '';
   const top = [...document.querySelectorAll('.tabstack:not(.off) .layer:not(.under)')].pop();
   const app = document.querySelector('.app > .view');
-  const kind = top?.dataset.view || (app ? (app.querySelector('.welcome') ? 'welcome' : (app.querySelector('h1, h2, .hdr .t')?.textContent || 'screen').trim().slice(0, 30)) : '?');
+  const appKind = () => (app.querySelector('.welcome') ? 'welcome'
+    : (app.querySelector('.hdr .t')?.textContent || app.querySelector('form button[type=submit]')?.textContent || app.querySelector('h1, h2')?.textContent || 'screen').trim().slice(0, 30));
+  const kind = top?.dataset.view || (app ? appKind() : '?');
   const tab = document.querySelector('.tabstack:not(.off) .tabbar button.on span')?.textContent || '';
   const seg = top?.querySelector('.segc button.on')?.textContent || '';
   const card = top?.querySelector('.rp') ? 'card' : top?.querySelector('nter-record-loader') ? 'animation' : '';
@@ -130,6 +133,15 @@ async function press(b) {
   return 'gone';
 }
 
+/** A desk card plays the NTER animation (2.5 s) before its card and buttons exist: wait for it. */
+async function settle() {
+  const top = '.tabstack:not(.off) .layer:not(.under)';
+  if (await page.locator(`${top} nter-record-loader`).count()) {
+    await page.locator(`${top} .rp`).waitFor({ timeout: 10000 }).catch(() => issue('desk card did not open after the animation', page.url()));
+    await page.waitForTimeout(200);
+  }
+}
+
 let snapshot = {};
 async function reset(signedIn) {
   // The page is on the app's origin: set its storage, then load the app once.
@@ -146,6 +158,7 @@ async function replay(start, path) {
     const r = await press(b);
     if (r !== 'pressed') throw new Error(`could not replay "${b.label}"`);
     await page.waitForTimeout(400);
+    await settle();
   }
 }
 
@@ -190,6 +203,7 @@ while (queue.length && states.size < MAX_STATES) {
     if (result === 'gone') issue('button not found again', b.label);
     presses += 1;
     await page.waitForTimeout(500);
+    await settle();
     if (process.env.BUTTONS_VERBOSE) console.log(`${sig}  ▸  ${b.label}  →  ${result}`);
     if (presses % 25 === 0) console.log(`… ${presses} presses, ${states.size} screens, ${issues.length} issues`);
     const after = await signature().catch(() => '?');
